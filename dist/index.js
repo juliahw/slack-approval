@@ -52003,6 +52003,37 @@ function run() {
             const workflow = process.env.GITHUB_WORKFLOW || "";
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.GITHUB_ACTOR || "";
+            const payload = core.getInput('payload') ?
+                JSON.parse(core.getInput('payload')) :
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": `*GitHub Actor:*\n${actor}`
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": `*Repos:*\n${github_server_url}/${github_repos}`
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": `*Actions URL:*\n${actionsUrl}`
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": `*GITHUB_RUN_ID:*\n${run_id}`
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": `*Workflow:*\n${workflow}`
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": `*RunnerOS:*\n${runnerOS}`
+                        }
+                    ]
+                };
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -52015,35 +52046,7 @@ function run() {
                                 "text": `GitHub Actions Approval Request`,
                             }
                         },
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*GitHub Actor:*\n${actor}`
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*Repos:*\n${github_server_url}/${github_repos}`
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*Actions URL:*\n${actionsUrl}`
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*GITHUB_RUN_ID:*\n${run_id}`
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*Workflow:*\n${workflow}`
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*RunnerOS:*\n${runnerOS}`
-                                }
-                            ]
-                        },
+                        payload,
                         {
                             "type": "actions",
                             "elements": [

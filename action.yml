@@ -7,4 +7,7 @@ runs:
 branding:
   icon: plus
   color: green
-
+inputs:
+  payload:
+    description: Override the default Slack payload (except for the approval buttons, which will be appended automatically)
+    required: false
