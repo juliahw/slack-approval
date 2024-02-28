@@ -28,8 +28,8 @@ async function run(): Promise<void> {
     const runnerOS   = process.env.RUNNER_OS || "";
     const actor      = process.env.GITHUB_ACTOR || "";
 
-    const payload = core.getInput('payload') ?
-      JSON.parse(core.getInput('payload')) :
+    const blocks = core.getInput('blocks') ?
+      JSON.parse(core.getInput('blocks')) :
       {
         "type": "section",
         "fields": [
@@ -72,7 +72,7 @@ async function run(): Promise<void> {
                   "text": `GitHub Actions Approval Request`,
                 }
             },
-            payload,
+            ...blocks,
             {
                 "type": "actions",
                 "elements": [

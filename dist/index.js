@@ -52003,8 +52003,8 @@ function run() {
             const workflow = process.env.GITHUB_WORKFLOW || "";
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.GITHUB_ACTOR || "";
-            const payload = core.getInput('payload') ?
-                JSON.parse(core.getInput('payload')) :
+            const blocks = core.getInput('blocks') ?
+                JSON.parse(core.getInput('blocks')) :
                 {
                     "type": "section",
                     "fields": [
@@ -52046,7 +52046,7 @@ function run() {
                                 "text": `GitHub Actions Approval Request`,
                             }
                         },
-                        payload,
+                        ...blocks,
                         {
                             "type": "actions",
                             "elements": [
