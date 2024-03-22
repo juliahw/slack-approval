@@ -52006,35 +52006,37 @@ function run() {
             const actor = process.env.GITHUB_ACTOR || "";
             const blocks = core.getInput('blocks') ?
                 JSON.parse(core.getInput('blocks')) :
-                {
-                    "type": "section",
-                    "fields": [
-                        {
-                            "type": "mrkdwn",
-                            "text": `*GitHub Actor:*\n${actor}`
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": `*Repos:*\n${github_server_url}/${github_repos}`
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": `*Actions URL:*\n${actionsUrl}`
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": `*GITHUB_RUN_ID:*\n${run_id}`
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": `*Workflow:*\n${workflow}`
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": `*RunnerOS:*\n${runnerOS}`
-                        }
-                    ]
-                };
+                [
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": `*GitHub Actor:*\n${actor}`
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": `*Repos:*\n${github_server_url}/${github_repos}`
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": `*Actions URL:*\n${actionsUrl}`
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": `*GITHUB_RUN_ID:*\n${run_id}`
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": `*Workflow:*\n${workflow}`
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": `*RunnerOS:*\n${runnerOS}`
+                            }
+                        ]
+                    }
+                ];
             const actionId = (0, crypto_1.randomUUID)();
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({

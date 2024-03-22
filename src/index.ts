@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { App, BlockAction, LogLevel } from '@slack/bolt'
-import { WebClient } from '@slack/web-api'
+import { Block, WebClient } from '@slack/web-api'
 import { randomUUID } from 'crypto'
 
 const token = process.env.SLACK_BOT_TOKEN || ""
@@ -29,37 +29,39 @@ async function run(): Promise<void> {
     const runnerOS   = process.env.RUNNER_OS || "";
     const actor      = process.env.GITHUB_ACTOR || "";
 
-    const blocks = core.getInput('blocks') ?
+    const blocks: Array<Block> = core.getInput('blocks') ?
       JSON.parse(core.getInput('blocks')) :
-      {
-        "type": "section",
-        "fields": [
-          {
-            "type": "mrkdwn",
-            "text": `*GitHub Actor:*\n${actor}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*Repos:*\n${github_server_url}/${github_repos}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*Actions URL:*\n${actionsUrl}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*GITHUB_RUN_ID:*\n${run_id}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*Workflow:*\n${workflow}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*RunnerOS:*\n${runnerOS}`
-          }
-        ]
-      };
+      [
+        {
+          "type": "section",
+          "fields": [
+            {
+              "type": "mrkdwn",
+              "text": `*GitHub Actor:*\n${actor}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*Repos:*\n${github_server_url}/${github_repos}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*Actions URL:*\n${actionsUrl}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*GITHUB_RUN_ID:*\n${run_id}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*Workflow:*\n${workflow}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*RunnerOS:*\n${runnerOS}`
+            }
+          ]
+        }
+      ];
 
     const actionId = randomUUID();
     (async () => {
