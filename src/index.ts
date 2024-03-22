@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import { App, BlockAction, LogLevel } from '@slack/bolt'
 import { WebClient } from '@slack/web-api'
+import { randomUUID } from 'crypto'
 
 const token = process.env.SLACK_BOT_TOKEN || ""
 const signingSecret =  process.env.SLACK_SIGNING_SECRET || ""
@@ -60,6 +61,7 @@ async function run(): Promise<void> {
         ]
       };
 
+    const actionId = randomUUID();
     (async () => {
       await web.chat.postMessage({
         channel: channel_id,
@@ -85,7 +87,7 @@ async function run(): Promise<void> {
                         },
                         "style": "primary",
                         "value": "approve",
-                        "action_id": "slack-approval-approve"
+                        "action_id": `slack-approval-approve-${actionId}`
                     },
                     {
                         "type": "button",
@@ -96,7 +98,7 @@ async function run(): Promise<void> {
                         },
                         "style": "danger",
                         "value": "reject",
-                        "action_id": "slack-approval-reject"
+                        "action_id": `slack-approval-reject-${actionId}`
                     }
                 ]
             }
@@ -104,7 +106,7 @@ async function run(): Promise<void> {
       });
     })();
 
-    app.action('slack-approval-approve', async ({ack, client, body, logger}) => {
+    app.action(`slack-approval-approve-${actionId}`, async ({ack, client, body, logger}) => {
       await ack();
       try {
         const response_blocks = (<BlockAction>body).message?.blocks
@@ -129,7 +131,7 @@ async function run(): Promise<void> {
       process.exit(0)
     });
 
-    app.action('slack-approval-reject', async ({ack, client, body, logger}) => {
+    app.action(`slack-approval-reject-${actionId}`, async ({ack, client, body, logger}) => {
       await ack();
       try {
         const response_blocks = (<BlockAction>body).message?.blocks

@@ -51980,6 +51980,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const bolt_1 = __nccwpck_require__(3311);
 const web_api_1 = __nccwpck_require__(431);
+const crypto_1 = __nccwpck_require__(6113);
 const token = process.env.SLACK_BOT_TOKEN || "";
 const signingSecret = process.env.SLACK_SIGNING_SECRET || "";
 const slackAppToken = process.env.SLACK_APP_TOKEN || "";
@@ -52034,6 +52035,7 @@ function run() {
                         }
                     ]
                 };
+            const actionId = (0, crypto_1.randomUUID)();
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -52059,7 +52061,7 @@ function run() {
                                     },
                                     "style": "primary",
                                     "value": "approve",
-                                    "action_id": "slack-approval-approve"
+                                    "action_id": `slack-approval-approve-${actionId}`
                                 },
                                 {
                                     "type": "button",
@@ -52070,14 +52072,14 @@ function run() {
                                     },
                                     "style": "danger",
                                     "value": "reject",
-                                    "action_id": "slack-approval-reject"
+                                    "action_id": `slack-approval-reject-${actionId}`
                                 }
                             ]
                         }
                     ]
                 });
             }))();
-            app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+            app.action(`slack-approval-approve-${actionId}`, ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
                 yield ack();
                 try {
@@ -52101,7 +52103,7 @@ function run() {
                 }
                 process.exit(0);
             }));
-            app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+            app.action(`slack-approval-reject-${actionId}`, ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _d, _e, _f;
                 yield ack();
                 try {
