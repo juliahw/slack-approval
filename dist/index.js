@@ -52037,53 +52037,53 @@ function run() {
                 }
             ];
         const actionId = (0, crypto_1.randomUUID)();
-        (() => __awaiter(this, void 0, void 0, function* () {
-            yield web.chat.postMessage({
-                channel: channel_id,
-                text: "GitHub Actions Approval request",
-                blocks: [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": `GitHub Actions Approval Request`,
-                        }
-                    },
-                    ...blocks,
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": true,
-                                    "text": "Approve"
-                                },
-                                "style": "primary",
-                                "value": "approve",
-                                "action_id": `slack-approval-approve-${actionId}`
-                            },
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": true,
-                                    "text": "Reject"
-                                },
-                                "style": "danger",
-                                "value": "reject",
-                                "action_id": `slack-approval-reject-${actionId}`
-                            }
-                        ]
+        yield web.chat.postMessage({
+            channel: channel_id,
+            text: "GitHub Actions Approval request",
+            blocks: [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": `GitHub Actions Approval Request`,
                     }
-                ]
-            });
-        }))();
+                },
+                ...blocks,
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "emoji": true,
+                                "text": "Approve"
+                            },
+                            "style": "primary",
+                            "value": "approve",
+                            "action_id": `slack-approval-approve-${actionId}`
+                        },
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "emoji": true,
+                                "text": "Reject"
+                            },
+                            "style": "danger",
+                            "value": "reject",
+                            "action_id": `slack-approval-reject-${actionId}`
+                        }
+                    ]
+                }
+            ]
+        });
         app.action(`slack-approval-approve-${actionId}`, ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             try {
+                core.info('Acking…');
                 yield ack();
+                core.info('Acked.');
                 const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
                 response_blocks.pop();
                 response_blocks.push({
@@ -52093,15 +52093,18 @@ function run() {
                         'text': `Approved by <@${body.user.id}> `,
                     },
                 });
+                core.info('Updating message…');
                 yield client.chat.update({
                     channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
                     ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
                     blocks: response_blocks
                 });
+                core.info('Message updated.');
             }
             catch (error) {
                 logger.error(error);
             }
+            core.info('Approval request approved');
             process.exit(0);
         }));
         app.action(`slack-approval-reject-${actionId}`, ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
@@ -52126,12 +52129,18 @@ function run() {
             catch (error) {
                 logger.error(error);
             }
+            core.setFailed('Approval request rejected');
             process.exit(1);
         }));
         yield app.start(3000);
-        console.log('Waiting Approval reaction.....');
     });
 }
+process.on('unhandledRejection', (error) => {
+    core.error(`Unhandled rejection: ${error}`);
+});
+process.on('uncaughtException', (error) => {
+    core.error(`Uncaught exception: ${error}`);
+});
 run();
 
 

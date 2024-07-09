@@ -63,53 +63,55 @@ async function run(): Promise<void> {
     ];
 
   const actionId = randomUUID();
-  (async () => {
-    await web.chat.postMessage({
-      channel: channel_id,
-      text: "GitHub Actions Approval request",
-      blocks: [
-          {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": `GitHub Actions Approval Request`,
-              }
-          },
-          ...blocks,
-          {
-              "type": "actions",
-              "elements": [
-                  {
-                      "type": "button",
-                      "text": {
-                          "type": "plain_text",
-                          "emoji": true,
-                          "text": "Approve"
-                      },
-                      "style": "primary",
-                      "value": "approve",
-                      "action_id": `slack-approval-approve-${actionId}`
-                  },
-                  {
-                      "type": "button",
-                      "text": {
-                              "type": "plain_text",
-                              "emoji": true,
-                              "text": "Reject"
-                      },
-                      "style": "danger",
-                      "value": "reject",
-                      "action_id": `slack-approval-reject-${actionId}`
-                  }
-              ]
-          }
-      ]
-    });
-  })();
+
+  await web.chat.postMessage({
+    channel: channel_id,
+    text: "GitHub Actions Approval request",
+    blocks: [
+        {
+          "type": "section",
+          "text": {
+              "type": "mrkdwn",
+              "text": `GitHub Actions Approval Request`,
+            }
+        },
+        ...blocks,
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "emoji": true,
+                        "text": "Approve"
+                    },
+                    "style": "primary",
+                    "value": "approve",
+                    "action_id": `slack-approval-approve-${actionId}`
+                },
+                {
+                    "type": "button",
+                    "text": {
+                            "type": "plain_text",
+                            "emoji": true,
+                            "text": "Reject"
+                    },
+                    "style": "danger",
+                    "value": "reject",
+                    "action_id": `slack-approval-reject-${actionId}`
+                }
+            ]
+        }
+    ]
+  });
 
   app.action(`slack-approval-approve-${actionId}`, async ({ack, client, body, logger}) => {
     try {
+      core.info('Acking…')
       await ack();
+      core.info('Acked.')
+
       const response_blocks = (<BlockAction>body).message?.blocks
       response_blocks.pop()
       response_blocks.push({
@@ -120,21 +122,25 @@ async function run(): Promise<void> {
         },
       })
 
+      core.info('Updating message…')
       await client.chat.update({
         channel: body.channel?.id || "",
         ts: (<BlockAction>body).message?.ts || "",
         blocks: response_blocks
-      })
+      });
+      core.info('Message updated.')
     } catch (error) {
-      logger.error(error)
+      logger.error(error);
     }
 
-    process.exit(0)
+    core.info('Approval request approved')
+    process.exit(0);
   });
 
   app.action(`slack-approval-reject-${actionId}`, async ({ack, client, body, logger}) => {
     try {
       await ack();
+
       const response_blocks = (<BlockAction>body).message?.blocks
       response_blocks.pop()
       response_blocks.push({
@@ -149,16 +155,24 @@ async function run(): Promise<void> {
         channel: body.channel?.id || "",
         ts: (<BlockAction>body).message?.ts || "",
         blocks: response_blocks
-      })
+      });
     } catch (error) {
-      logger.error(error)
+      logger.error(error);
     }
 
-    process.exit(1)
+    core.setFailed('Approval request rejected');
+    process.exit(1);
   });
 
   await app.start(3000);
-  console.log('Waiting Approval reaction.....');
 }
 
-run()
+process.on('unhandledRejection', (error: any) => {
+  core.error(`Unhandled rejection: ${error}`);
+});
+
+process.on('uncaughtException', (error: any) => {
+  core.error(`Uncaught exception: ${error}`);
+});
+
+run();
